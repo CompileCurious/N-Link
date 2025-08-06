@@ -1,9 +1,43 @@
 #include "NLinkAppView.h"
 #include "ChatEngine.h"
 #include <akntexteditor.h>
+#include <akntextview.h>
 #include <akntextquerydialog.h>
 
 void CNLinkAppView::ConstructL() {
     iChatEngine = CChatEngine::NewL();
 
-    iEditor =[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/kristtopher/CLionProjects/tree/a689c1b7163644c05413e6b8b519d42cd0449446/TEA%2FTEAENCRYPTOR.cpp?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/scnu-sloth/hsctf-2020-freshmen/tree/7e960dc1901cdc879ce90829d9d32fec2daf9e34/Reverse-Deliver_TEA_to_dalao%2Ftqltql_exp.c?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Matixx00/Projekt-SYCY/tree/dd0aea405a87850e862fb8b0cf50c178e3f62775/C_model_ref%2Ftea_by_wheeler_needham.c?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "3")
+    CreateWindowL();
+
+    iEditor = new (ELeave) CAknTextEditor();
+    iEditor->SetContainerWindowL(*this);
+    iEditor->SetRect(TRect(0, 150, 176, 200));
+    iEditor->ActivateL();
+
+    iLog = new (ELeave) CAknTextView();
+    iLog->SetContainerWindowL(*this);
+    iLog->SetRect(TRect(0, 0, 176, 150));
+    iLog->ActivateL();
+
+    SetRect(TRect(0, 0, 176, 200));
+    ActivateL();
+}
+
+void CNLinkAppView::SendMessageL() {
+    TBuf<64> msg;
+    iEditor->GetText(msg);
+    iChatEngine->SendMessageL(msg);
+
+    iLog->AddTextL(_L("You: "));
+    iLog->AddTextL(msg);
+    iLog->AddTextL(_L("\n"));
+    iEditor->Clear();
+}
+
+void CNLinkAppView::SetUsernameL() {
+    TBuf<16> input;
+    CAknTextQueryDialog* dlg = new (ELeave) CAknTextQueryDialog(input);
+    if (dlg->ExecuteLD(R_TEXT_QUERY_DIALOG)) {
+        iChatEngine->SetUsernameL(input);
+    }
+}
