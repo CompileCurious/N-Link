@@ -1,0 +1,19 @@
+#include <eikon.rh>
+#include "NLink.hrh"
+
+RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info {
+    short_caption = "N-Link";
+    caption = "N-Link";
+}
+
+RESOURCE MENU_BAR r_main_menu {
+    titles = {
+        MENU_TITLE {
+            text = "Options";
+            items = {
+                MENU_ITEM { command = ECmdSetUsername; text = "Set Username"; },
+                MENU_ITEM { command = EAknSoftkeyExit; text = "Exit"; }
+            };
+        }
+    };
+}
