@@ -1,0 +1,4 @@
+enum TNLinkCommands {
+    ECmdSend = 1,
+    ECmdSetUsername
+};
