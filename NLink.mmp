@@ -1,0 +1,16 @@
+TARGET          NLink.app
+TARGETTYPE      APP
+UID             0x100039CE 0xE1234567
+CAPABILITY      LocalServices NetworkServices
+LANG            SC
+SOURCEPATH      ..\src
+SOURCE          main.cpp
+SOURCE          NLinkAppUi.cpp
+SOURCE          NLinkAppView.cpp
+SOURCE          ChatEngine.cpp
+SOURCE          TEA.cpp
+START RESOURCE  ..\res\NLink.rss
+HEADER          NLinkAppUi.h
+HEADER          NLinkAppView.h
+HEADER          ChatEngine.h
+HEADER          TEA.h
