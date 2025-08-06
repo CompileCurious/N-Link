@@ -1,0 +1,8 @@
+; N-Link Bluetooth Messenger
+&EN
+#{"N-Link"},(0xE1234567),1,0,0
+%{"Sam"}
+:"N-Link"
+
+"data\NLink.rsc" - "!:\system\apps\NLink\NLink.rsc"
+"data\NLink.app" - "!:\system\apps\NLink\NLink.app"
