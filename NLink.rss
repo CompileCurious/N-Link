@@ -17,3 +17,21 @@ RESOURCE MENU_BAR r_main_menu {
         }
     };
 }
+
+RESOURCE DIALOG R_TEXT_QUERY_DIALOG
+    {
+    flags = EEikDlgFlagNoDrag | EEikDlgFlagCbaButtons;
+    buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+    items = {
+        DLG_LINE
+            {
+            type = EAknCtQuery;
+            id = EGeneralQuery;
+            control = AVKON_QUERY_CONTROL
+                {
+                layout = EQueryLayout;
+                label = "Enter username:";
+                }; 
+            }
+        };
+    }

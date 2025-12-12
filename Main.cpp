@@ -1,10 +1,11 @@
+
 #include <eikstart.h>
-#include "NLinkAppUi.h"
+#include "NLinkDocument.h"
 
 class CNLinkApplication : public CAknApplication {
 public:
     TUid AppUid() const { return TUid::Uid(0xE1234567); }
-    CApaDocument* CreateDocumentL() { return new (ELeave) CAknDocument(*this); }
+    CApaDocument* CreateDocumentL() { return CNLinkDocument::NewL(*this); }
 };
 
 LOCAL_C CApaApplication* NewApplication() {

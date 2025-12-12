@@ -1,3 +1,14 @@
+; NLink.pkg - Symbian installation package definition
+
+#{"N-Link"},(0xE1234567),1,0,0
+; Languages
+&EN
+
+"NLink.sis"
+
+"NLink.app" - "!:\System\Apps\NLink\NLink.app"
+"NLink.rsc" - "!:\System\Apps\NLink\NLink.rsc"
+"NLink.mbm" - "!:\System\Apps\NLink\NLink.mbm"
 ; N-Link Bluetooth Messenger
 &EN
 #{"N-Link"},(0xE1234567),1,0,0

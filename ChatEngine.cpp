@@ -13,6 +13,11 @@ CChatEngine::CChatEngine() {
     iKey[1] = 0x0000FACE;
     iKey[2] = 0xDEADBEEF;
     iKey[3] = 0x12345678;
+    // Initialize socket server and socket
+    User::LeaveIfError(iSocketServ.Connect());
+    // Open Bluetooth RFCOMM socket
+    User::LeaveIfError(iSocket.Open(iSocketServ, KBTAddrFamily, KSockStream, KRFCOMM));
+    // Bluetooth connection will be established after device selection (to be implemented)
 }
 
 void CChatEngine::ConstructL() {
@@ -20,6 +25,11 @@ void CChatEngine::ConstructL() {
 }
 
 CChatEngine::~CChatEngine() {}
+
+CChatEngine::~CChatEngine() {
+    iSocket.Close();
+    iSocketServ.Close();
+}
 
 void CChatEngine::SetUsernameL(const TDesC& aName) {
     iUsername.Copy(aName);

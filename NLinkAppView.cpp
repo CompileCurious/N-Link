@@ -41,3 +41,12 @@ void CNLinkAppView::SetUsernameL() {
         iChatEngine->SetUsernameL(input);
     }
 }
+
+void CNLinkAppView::StartBluetoothDiscoveryL() {
+    // UI stub: In a real app, show a device picker dialog and pass the address to ChatEngine
+    iLog->AddTextL(_L("Starting Bluetooth discovery...\n"));
+    TRAPD(err, iChatEngine->StartBluetoothDiscoveryL());
+    if (err != KErrNone) {
+        iLog->AddTextL(_L("Bluetooth discovery failed\n"));
+    }
+}
