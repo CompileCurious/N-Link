@@ -135,3 +135,28 @@ TBool CChatEngine::IsUsernameUnique(const TDesC& aUsername) {
     }
     return ETrue;
 }
+
+void CChatEngine::ReceiveMessageL() {
+    // Receive and decrypt a message from the peer
+    TBuf8<80> encMsg;
+    iSocket.Read(encMsg);
+    HBufC* msg = DecryptMessageL(encMsg);
+    // TODO: Pass to UI for display
+    delete msg;
+}
+
+HBufC* CChatEngine::DecryptMessageL(const TDesC8& aMsg) {
+    TInt len = aMsg.Length();
+    TInt blocks = len / 8;
+    HBufC* decrypted = HBufC::NewL(len);
+    TPtr ptr = decrypted->Des();
+
+    for (TInt i = 0; i < blocks; i++) {
+        TUint32 block[2] = {0};
+        Mem::Copy(&block, aMsg.Ptr() + i * 8, 8);
+        TEA::Decrypt(block, iKey);
+        ptr.Append(reinterpret_cast<TUint8*>(&block), 8);
+    }
+
+    return decrypted;
+}
