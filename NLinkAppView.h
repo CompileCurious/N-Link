@@ -9,6 +9,7 @@ public:
     void SendMessageL();
     void SetUsernameL();
     void StartBluetoothDiscoveryL();
+    void StartBluetoothServerL();
 private:
     CAknTextEditor* iEditor;
     CAknTextView* iLog;
