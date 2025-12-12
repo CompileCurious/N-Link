@@ -22,6 +22,9 @@ public:
     void ExchangeUsernamesL();
     bool IsUsernameUnique(const TDesC& aPeerName) const;
 
+    // Passphrase/key
+    void SetPassphraseL(const TDesC& aPassphrase);
+
 private:
     CChatEngine();
     void ConstructL();

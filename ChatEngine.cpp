@@ -1,4 +1,6 @@
 #include "ChatEngine.h"
+#include <e32math.h>
+#include <hash.h> // For SHA-1
 
 CChatEngine* CChatEngine::NewL() {
     CChatEngine* self = new (ELeave) CChatEngine();
@@ -40,21 +42,36 @@ TBuf<16> CChatEngine::Username() const {
     return iUsername;
 }
 
-HBufC8* CChatEngine::EncryptMessageL(const TDesC& aMsg) {
-    TInt len = aMsg.Length();
-    TInt blocks = (len + 7) / 8;
-    HBufC8* encrypted = HBufC8::NewL(blocks * 8);
-    TPtr8 encPtr = encrypted->Des();
-
-    for (TInt i = 0; i < blocks; i++) {
-        TUint32 block[2] = {0};
-        TInt chunkLen = Min(8, len - i * 8);
-        Mem::Copy(&block, aMsg.Ptr() + i * 8, chunkLen);
-        TEA::Encrypt(block, iKey);
-        encPtr.Append(reinterpret_cast<TUint8*>(&block), 8);
+void CChatEngine::SetPassphraseL(const TDesC& aPassphrase) {
+    // Hash passphrase to 16 bytes (use SHA-1, take first 16 bytes)
+    THashSHA1 sha;
+    sha.Reset();
+    sha.Update(reinterpret_cast<const TUint8*>(aPassphrase.Ptr()), aPassphrase.Length() * 2);
+    TBuf8<20> digest;
+    sha.Final(digest);
+    for (int i = 0; i < 4; ++i) {
+        iKey[i] = *(reinterpret_cast<const TUint32*>(digest.Ptr() + i * 4));
     }
+}
 
-    return encrypted;
+HBufC8* CChatEngine::EncryptMessageL(const TDesC& aMsg) {
+    // PKCS#7 pad, random IV, CBC encrypt
+    TInt len = aMsg.Length() * 2;
+    TInt paddedLen = ((len + 7) / 8) * 8;
+    HBufC8* buf = HBufC8::NewMaxL(paddedLen + 8); // +8 for IV
+    TPtr8 ptr = buf->Des();
+    // Generate random IV
+    TUint8 iv[8];
+    for (int i = 0; i < 8; ++i) iv[i] = Math::Random() & 0xFF;
+    ptr.Append(iv, 8);
+    // Copy message and pad
+    TUint8* data = ptr.Ptr() + 8;
+    Mem::Copy(data, aMsg.Ptr(), len);
+    TInt finalLen = TEA::Pad(data, len, 8);
+    // CBC encrypt
+    TEA::EncryptCBC(data, finalLen, iKey, iv);
+    ptr.SetLength(8 + finalLen);
+    return buf;
 }
 
 void CChatEngine::SendMessageL(const TDesC& aMsg) {
@@ -145,18 +162,24 @@ void CChatEngine::ReceiveMessageL() {
     delete msg;
 }
 
-HBufC* CChatEngine::DecryptMessageL(const TDesC8& aMsg) {
-    TInt len = aMsg.Length();
-    TInt blocks = len / 8;
-    HBufC* decrypted = HBufC::NewL(len);
-    TPtr ptr = decrypted->Des();
+HBufC* CChatEngine::DecryptMessageL(const TDesC8& aData) {
+    // Extract IV
+    const TUint8* iv = reinterpret_cast<const TUint8*>(aData.Ptr());
+    TInt encLen = aData.Length() - 8;
+    HBufC* msg = HBufC::NewMaxL(encLen / 2);
+    TUint8* data = (TUint8*)User::AllocL(encLen);
+    Mem::Copy(data, aData.Ptr() + 8, encLen);
+    TEA::DecryptCBC(data, encLen, iKey, const_cast<TUint8*>(iv));
+    TInt msgLen = TEA::Unpad(data, encLen);
+    msg->Des().Copy(reinterpret_cast<const TUint16*>(data), msgLen / 2);
+    User::Free(data);
+    return msg;
+}
 
-    for (TInt i = 0; i < blocks; i++) {
-        TUint32 block[2] = {0};
-        Mem::Copy(&block, aMsg.Ptr() + i * 8, 8);
-        TEA::Decrypt(block, iKey);
-        ptr.Append(reinterpret_cast<TUint8*>(&block), 8);
-    }
+void CChatEngine::NotifyPeerConnected(CNLinkAppView* view) {
+    view->ShowPeerUsername(iPeerUsername);
+}
 
-    return decrypted;
+void CChatEngine::NotifyError(CNLinkAppView* view, const TDesC& msg) {
+    view->ShowError(msg);
 }
