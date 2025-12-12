@@ -109,3 +109,29 @@ TBuf<16> CChatEngine::LoadUsernameEncryptedL() {
     CleanupStack::PopAndDestroy(&fs);
     return name;
 }
+
+void CChatEngine::ExchangeUsernamesL() {
+    // Send our username
+    TPtrC8 myName8(reinterpret_cast<const TUint8*>(iUsername.Ptr()), iUsername.Length() * 2);
+    iSocket.Write(myName8);
+    // Receive peer username (blocking, for demo)
+    TBuf8<32> peerName8;
+    iSocket.Read(peerName8);
+    TPtrC peerName(reinterpret_cast<const TUint16*>(peerName8.Ptr()), peerName8.Length() / 2);
+    iPeerUsername.Copy(peerName);
+    // Check uniqueness
+    if (!IsUsernameUnique(iPeerUsername)) {
+        User::Leave(KErrAlreadyExists);
+    }
+}
+
+TBool CChatEngine::IsUsernameUnique(const TDesC& aUsername) {
+    // For demo purposes, let's assume the following usernames are already taken
+    const TPtrC existingUsernames[] = {_L("User1"), _L("User2"), _L("User3")};
+    for (TInt i = 0; i < sizeof(existingUsernames) / sizeof(existingUsernames[0]); i++) {
+        if (aUsername.Compare(existingUsernames[i]) == 0) {
+            return EFalse;
+        }
+    }
+    return ETrue;
+}
